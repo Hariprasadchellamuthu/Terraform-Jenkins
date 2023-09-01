@@ -38,7 +38,7 @@ pipeline {
                         ]
                     )
 
-                    if (userInput.resourceType == 'EC2') {
+                    if (userInput != null && userInput.resourceType == 'EC2') {
                         sh "echo 'You selected EC2 resource creation'"
                         sh """
                             cat <<EOF > terraform/main.tf
@@ -55,7 +55,7 @@ pipeline {
                             }
                             EOF
                         """
-                    } else if (userInput.resourceType == 'S3') {
+                    } else if (userInput != null && userInput.resourceType == 'S3') {
                         sh "echo 'You selected S3 bucket creation'"
                         sh """
                             cat <<EOF > terraform/main.tf
