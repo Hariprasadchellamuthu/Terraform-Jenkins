@@ -27,52 +27,7 @@ pipeline {
             }
         }
 
-        stage('Resource Selection') {
-            steps {
-                script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    def userInput = input(
-                        message: "Which AWS resource do you want to create?",
-                        parameters: [
-                            choice(name: 'resourceType', choices: 'EC2\nS3', description: 'Select AWS resource type to create')
-                        ]
-                    )
-
-                    if (params.resourceType == 'EC2') {
-                        sh "echo 'You selected EC2 resource creation'"
-                        sh """
-                            cat <<EOF > terraform/main.tf
-                            provider "aws" {
-                              region = "us-east-1" 
-                            }
-
-                            resource "aws_instance" "my_instance" {
-                              ami           = "ami-05fa00d4c63e32376"  
-                              instance_type = "t2.micro"  
-                              tags = {
-                                Name = "MyEC2Instance"
-                              }
-                            }
-                            EOF
-                        """
-                    } else if (params.resourceType == 'S3') {
-                        sh "echo 'You selected S3 bucket creation'"
-                        sh """
-                            cat <<EOF > terraform/main.tf
-                            provider "aws" {
-                              region = "us-east-1" 
-                            }
-
-                            resource "aws_s3_bucket" "my_bucket" {
-                              bucket = var.bucket_name
-                              acl    = "private"
-                            }
-                            EOF
-                        """
-                    } 
-                }
-            }
-        }		
+ 
         stage('Approval') {
             when {
                 not {
