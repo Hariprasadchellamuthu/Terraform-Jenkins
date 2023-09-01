@@ -1,16 +1,5 @@
 provider "aws" {
     region = "us-east-1"  
-}
-
-variable "instance_type" {
-  type    = string
-  default = "t2.micro"
-}
-
-variable "bucket_name" {
-  type    = string
-  default = "my-terraform-bucket"
-}
 
 # EC2 Instance
 resource "aws_instance" "foo" {
@@ -23,6 +12,6 @@ resource "aws_instance" "foo" {
 
 # S3 Bucket
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = var.bucket_name
+  bucket = bucket_n00
   acl    = "private"
 }
