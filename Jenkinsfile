@@ -1,3 +1,5 @@
+def userInput // Define userInput as a global variable at the beginning
+
 pipeline {
     parameters {
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
@@ -29,8 +31,6 @@ pipeline {
         stage('Resource Selection') {
             steps {
                 script {
-                    def userInput // Define userInput here
-
                     userInput = input(
                         message: "Which AWS resource do you want to create?",
                         parameters: [
@@ -38,7 +38,7 @@ pipeline {
                         ]
                     )
 
-                    echo "Debug: userInput = ${userInput}" // Add this line for debugging
+                    echo "Debug: userInput = ${userInput}" 
                 }
             }
         }
