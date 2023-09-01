@@ -70,7 +70,8 @@ pipeline {
                             EOF
                         """
                     } 
-                }
+            } else {
+                error "Debug: userInput or resourceType is null"
             }
         }
 
