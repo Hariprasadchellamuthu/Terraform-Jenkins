@@ -91,11 +91,14 @@ pipeline {
        }
 
         stage('Apply') {
-            steps {
-                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
+            when {
+                expression {
+                    return params.autoApprove || currentBuild.rawBuild.resultIsBetterOrEqualTo('SUCCESS')
+                }           
+                steps {
+                    sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
             }
         }
     }
-
-  }
+}
   
