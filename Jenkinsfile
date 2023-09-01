@@ -26,11 +26,11 @@ pipeline {
             }
         }
 
-        script {
-            def userInput // Define userInput here
+        stage('Resource Selection') {
+            steps {
+                script {
+                    def userInput // Define userInput here
 
-            stage('Resource Selection') {
-                steps {
                     userInput = input(
                         message: "Which AWS resource do you want to create?",
                         parameters: [
@@ -41,19 +41,19 @@ pipeline {
                     echo "Debug: userInput = ${userInput}" // Add this line for debugging
                 }
             }
+        }
 
-            stage('Approval') {
-                when {
-                    expression {
-                        return userInput != null && userInput.resourceType != null
-                    }
+        stage('Approval') {
+            when {
+                expression {
+                    return userInput != null && userInput.resourceType != null
                 }
-                steps {
-                    script {
-                        def plan = readFile 'terraform/tfplan.txt'
-                        input message: "Do you want to apply the plan?",
-                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-                    }
+            }
+            steps {
+                script {
+                    def plan = readFile 'terraform/tfplan.txt'
+                    input message: "Do you want to apply the plan?",
+                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
                 }
             }
         }
