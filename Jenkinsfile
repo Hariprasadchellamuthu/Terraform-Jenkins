@@ -41,15 +41,39 @@ pipeline {
 
                     if (userInput.resourceType == 'EC2') {
                         sh "echo 'You selected EC2 resource creation'"
-                        // Add your EC2 Terraform configuration here
+                        sh """
+                            cat <<EOF > terraform/main.tf
+                            provider "aws" {
+                              region = "us-east-1" 
+                            }
+
+                            resource "aws_instance" "foo" {
+                              ami           = "ami-05fa00d4c63e32376"  
+                              instance_type = "t2.micro"  
+                              tags = {
+                                  Name = "TF-Instance"
+                              }
+                            }
+                            EOF
+                        """
                     } else if (userInput.resourceType == 'S3') {
                         sh "echo 'You selected S3 bucket creation'"
-                        // Add your S3 bucket Terraform configuration here
+                        sh """
+                            cat <<EOF > terraform/main.tf
+                            provider "aws" {
+                              region = "us-east-1" 
+                            }
+
+                            resource "aws_s3_bucket" "my_bucket" {
+                              bucket = var.bucket_name
+                              acl    = "private"
+                            }
+                            EOF
+                        """
                     } 
                 }
             }
-        }		
-        stage('Approval') {
+        }		        stage('Approval') {
            when {
                not {
                    equals expected: true, actual: params.autoApprove
