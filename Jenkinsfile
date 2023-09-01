@@ -28,6 +28,7 @@ pipeline {
                 sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
             }
         }
+        
         stage('Resource Selection') {
             steps {
                 script {
