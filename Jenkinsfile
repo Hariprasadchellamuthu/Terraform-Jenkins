@@ -26,11 +26,12 @@ pipeline {
             }
         }
 
-        stage('Resource Selection') {
-            steps {
-                script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    def userInput = input(
+        script {
+            def userInput // Define userInput here
+
+            stage('Resource Selection') {
+                steps {
+                    userInput = input(
                         message: "Which AWS resource do you want to create?",
                         parameters: [
                             choice(name: 'resourceType', choices: 'EC2\nS3', description: 'Select AWS resource type to create')
@@ -38,60 +39,21 @@ pipeline {
                     )
 
                     echo "Debug: userInput = ${userInput}" // Add this line for debugging
+                }
+            }
 
-                    if (userInput != null && userInput.resourceType != null) {
-                        echo "Debug: resourceType = ${userInput.resourceType}" // Add this line for debugging
-
-                        if (userInput.resourceType == 'EC2') {
-                            sh "echo 'You selected EC2 resource creation'"
-                            sh """
-                                cat <<EOF > terraform/main.tf
-                                provider "aws" {
-                                  region = "us-east-1" 
-                                }
-
-                                resource "aws_instance" "foo" {
-                                  ami           = "ami-05fa00d4c63e32376"  
-                                  instance_type = "t2.micro"  
-                                  tags = {
-                                      Name = "TF-Instance"
-                                  }
-                                }
-                                EOF
-                            """
-                        } else if (userInput.resourceType == 'S3') {
-                            sh "echo 'You selected S3 bucket creation'"
-                            sh """
-                                cat <<EOF > terraform/main.tf
-                                provider "aws" {
-                                  region = "us-east-1" 
-                                }
-
-                                resource "aws_s3_bucket" "my_bucket" {
-                                  bucket = var.bucket_name
-                                  acl    = "private"
-                                }
-                                EOF
-                            """
-                        }
-                    } else {
-                        error "Debug: userInput or resourceType is null" // Add this line for debugging
+            stage('Approval') {
+                when {
+                    expression {
+                        return userInput != null && userInput.resourceType != null
                     }
                 }
-            }
-        }
-
-        stage('Approval') {
-            when {
-                expression {
-                    return userInput != null && userInput.resourceType != null
-                }
-            }
-            steps {
-                script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                steps {
+                    script {
+                        def plan = readFile 'terraform/tfplan.txt'
+                        input message: "Do you want to apply the plan?",
+                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                    }
                 }
             }
         }
